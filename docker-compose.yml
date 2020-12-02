@@ -1,5 +1,25 @@
 version: "3"
 services:
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.2.0"
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:7.2.0"
+    ports:
+      - "5601:5601"
+  filebeat:
+    image: "docker.elastic.co/beats/filebeat:7.2.0"
+    user: root
+    volumes:
+      - /Users/rharaiev/IdeaProjects/logging-monitoring/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
   zipkin-server:
     image: rharaiev/bff-zipkin-server:1.0
     container_name: bff-zipkin-server
@@ -40,8 +60,10 @@ services:
     image: rharaiev/bff-frontend:1.0
     container_name: bff-frontend-service
     ports:
-       - 8084:8084
+      - 8084:8084
     networks:
-        - mynet
+      - mynet
 networks:
   mynet:
+volumes:
+  elasticsearch_data:
