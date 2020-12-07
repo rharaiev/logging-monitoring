@@ -20,6 +20,32 @@ services:
       - /Users/rharaiev/IdeaProjects/logging-monitoring/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - /Users/rharaiev/IdeaProjects/logging-monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - mynet
+    links:
+      - node-exporter:node-exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: monitoring_node_exporter
+    restart: unless-stopped
+    expose:
+      - 9100
+    networks:
+      - mynet
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - mynet
+    links:
+      - prometheus:prometheus
   zipkin-server:
     image: rharaiev/bff-zipkin-server:1.0
     container_name: bff-zipkin-server
